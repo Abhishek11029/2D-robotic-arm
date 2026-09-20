@@ -1,0 +1,63 @@
+clc;
+clear;
+close all;
+
+%% ROBOT PARAMETERS
+m1 = 1;       % Link 1 point mass
+m2 = 1;       % Link 2 point mass
+
+l1 = 1;       % Length of link 1
+l2 = 1;       % Length of link 2
+
+g = 9.81;
+
+%% PID GAINS
+Kp = [50 0;
+      0 50];
+
+Kd = [10 0;
+      0 10];
+
+Ki = [5 0;
+      0 5];
+
+%% INITIAL CONDITIONS
+theta0 = [0; 0];
+dtheta0 = [0; 0];
+
+x0 = [theta0;
+      dtheta0;
+      0;
+      0];       % integral errors
+
+%% TARGET ANGLES
+theta_ref = [pi/4;
+             pi/3];
+
+%% SIMULATION
+tspan = [0 10];
+
+[t,x] = ode45(@(t,x) robotDynamics( ...
+    t,x,m1,m2,l1,l2,g,Kp,Kd,Ki,theta_ref), ...
+    tspan,x0);
+
+%% RESULTS
+theta1 = x(:,1);
+theta2 = x(:,2);
+
+figure;
+
+plot(t,theta1,'LineWidth',1.5);
+hold on;
+plot(t,theta2,'LineWidth',1.5);
+
+yline(theta_ref(1),'--');
+yline(theta_ref(2),'--');
+
+xlabel('Time (s)');
+ylabel('Joint Angle (rad)');
+legend('\theta_1','\theta_2',...
+       '\theta_{1ref}','\theta_{2ref}');
+
+title('2-DOF Robotic Arm MIMO PID Control');
+grid on;
